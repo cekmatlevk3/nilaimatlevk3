@@ -18,6 +18,10 @@
   .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit}
   .stat b{display:block;font-size:24px}
   .stat.active{outline:2px solid var(--navy)}
+  .legend{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:-4px 0 14px}
+  .legend div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:13px;color:var(--muted)}
+  .legend b{display:inline-block;border-radius:5px;padding:1px 6px;margin-bottom:3px;font-size:12px}
+  @media (max-width:760px){.legend{grid-template-columns:1fr 1fr}}
   .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
   select,button{font:inherit}
   .btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
@@ -53,6 +57,12 @@
 <main>
   <div class="note">Tracker ini hanya mencatat kelengkapan evidence. <b>Tidak ada level atau skor maturity</b>; penetapannya tetap mengacu pada workbook resmi dan verifikasi pelaksana. Perubahan status tersimpan di browser Anda sendiri.</div>
   <div class="stats" id="stats"></div>
+  <div class="legend" aria-label="Arti status">
+    <div><b class="s-Tersedia">Tersedia</b><br>Dokumen ada, relevan, dan menunjukkan kegiatan sudah dilaksanakan.</div>
+    <div><b class="s-Belum-lengkap">Belum lengkap</b><br>Dokumen ada, tapi kurang: belum ditandatangani, periode salah, atau baru aturan tanpa bukti pelaksanaan.</div>
+    <div><b class="s-Belum-tersedia">Belum tersedia</b><br>Tidak ada dokumen sama sekali di folder indikator.</div>
+    <div><b class="s-Tidak-relevan">Tidak relevan</b><br>Ada dokumen, tapi tidak sesuai dengan bukti yang diminta workbook.</div>
+  </div>
   <div class="bar">
     <button class="btn" id="memo">Salin memo permintaan evidence</button>
     <button class="btn ghost" id="reset">Kembalikan data awal</button>
