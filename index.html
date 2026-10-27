@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tracker Evidence MATLEV K3</title>
+<style>
+  :root{--bg:#f7f8fa;--card:#fff;--ink:#1f2937;--muted:#6b7280;--line:#e5e7eb;--navy:#1e3a5f;
+    --ok:#e3f4e6;--okt:#1b6b2c;--bl:#fff2d6;--blt:#8a5a00;--bt:#fde3e3;--btt:#a11d1d;--tr:#ececf1;--trt:#444}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif}
+  header{background:var(--navy);color:#fff;padding:20px 16px}
+  header h1{margin:0 0 4px;font-size:20px}
+  header p{margin:0;opacity:.85;font-size:13px}
+  main{max-width:1180px;margin:0 auto;padding:16px}
+  .note{background:#fff;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-size:13px;color:var(--muted);margin-bottom:14px}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+  .stat b{display:block;font-size:24px}
+  .stat.active{outline:2px solid var(--navy)}
+  .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+  select,button{font:inherit}
+  .btn{background:var(--navy);color:#fff;border:0;border-radius:8px;padding:8px 14px;cursor:pointer}
+  .btn.ghost{background:#fff;color:var(--navy);border:1px solid var(--navy)}
+  table{width:100%;border-collapse:collapse;background:var(--card);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  th,td{padding:9px 10px;border-bottom:1px solid var(--line);vertical-align:top;text-align:left;font-size:14px}
+  th{background:#f1f3f6;font-size:13px}
+  .st{border-radius:6px;padding:4px 6px;border:1px solid var(--line);font-weight:600}
+  .s-Tersedia{background:var(--ok);color:var(--okt)}
+  .s-Belum-lengkap{background:var(--bl);color:var(--blt)}
+  .s-Belum-tersedia{background:var(--bt);color:var(--btt)}
+  .s-Tidak-relevan{background:var(--tr);color:var(--trt)}
+  td input{width:100%;font:inherit;border:1px solid var(--line);border-radius:6px;padding:4px 6px}
+  .small{color:var(--muted);font-size:12px}
+  #toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#111;color:#fff;padding:8px 14px;border-radius:8px;opacity:0;transition:.2s}
+  #toast.show{opacity:1}
+  footer{max-width:1180px;margin:0 auto;padding:4px 16px 24px;color:var(--muted);font-size:12px}
+  @media (max-width:760px){
+    .stats{grid-template-columns:repeat(2,1fr)}
+    table,thead,tbody,tr,td{display:block}
+    thead{display:none}
+    tr{border-bottom:8px solid var(--bg)}
+    td{border:0;padding:6px 12px}
+    td::before{content:attr(data-l);display:block;font-size:11px;color:var(--muted);text-transform:uppercase}
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Tracker Pemeriksaan Evidence MATLEV K3</h1>
+  <p>Unit contoh · Kriteria 1.1 Menyusun RKAP Bidang K3 berdasarkan kajian IBPPR · Data contoh, nama disamarkan</p>
+</header>
+<main>
+  <div class="note">Tracker ini hanya mencatat kelengkapan evidence. <b>Tidak ada level atau skor maturity</b>; penetapannya tetap mengacu pada workbook resmi dan verifikasi pelaksana. Perubahan status tersimpan di browser Anda sendiri.</div>
+  <div class="stats" id="stats"></div>
+  <div class="bar">
+    <button class="btn" id="memo">Salin memo permintaan evidence</button>
+    <button class="btn ghost" id="reset">Kembalikan data awal</button>
+    <span class="small" id="filterInfo"></span>
+  </div>
+  <table>
+    <thead><tr><th style="width:18%">Bukti yang diminta workbook</th><th style="width:22%">Evidence (file · tanggal · periode)</th><th style="width:13%">Status</th><th>Kekurangan</th><th>Saran tindak lanjut</th><th style="width:11%">PIC</th></tr></thead>
+    <tbody id="rows"></tbody>
+  </table>
+</main>
+<footer>Disusun dengan Claude (Skill pemeriksaan-evidence-matlev). Hasil bersifat pendukung dan perlu diverifikasi pelaksana.</footer>
+<div id="toast"></div>
+<script>
+const STATUS = ["Tersedia","Belum lengkap","Belum tersedia","Tidak relevan"];
+const DATA = [
+  {b:"Kebijakan/komitmen K3 unit yang ditandatangani manajemen", e:"Kebijakan K3 Unit 2026.pdf · Jan 2026 · 2026", s:"Belum lengkap", k:"Hanya tanda tangan Manager; workbook meminta semua manajemen. Ada salah ketik nama unit.", t:"Lengkapi tanda tangan manajemen; perbaiki nama unit.", p:""},
+  {b:"Kebijakan K3 khusus penunjang operasional", e:"Kebijakan Stop Work Authority.pdf · Mar 2026 · 2026", s:"Tersedia", k:"Tidak ada.", t:"Simpan sebagai evidence kebijakan khusus.", p:""},
+  {b:"IBPPR seluruh aktivitas, terupdate 1 tahun sekali", e:"5 file IBPPR 2026 per bidang · Jun 2026", s:"Belum lengkap", k:"Penyetuju tidak terbaca; cakupan seluruh aktivitas belum pasti; ada file sisa sementara.", t:"Pastikan IBPPR disetujui; cocokkan dengan daftar aktivitas; hapus file sisa.", p:""},
+  {b:"Profil risiko unit", e:"Profil Risiko 2026.xlsx · Jun 2026", s:"Belum lengkap", k:"Isi file belum diperiksa.", t:"Periksa isi; tandai risiko K3 dasar program kerja.", p:""},
+  {b:"Program kerja K3 turunan mitigasi IBPPR", e:"Tidak ditemukan", s:"Belum tersedia", k:"Tidak ada dokumen program kerja K3.", t:"Unggah program kerja K3 2026 yang merujuk IBPPR.", p:""},
+  {b:"Penetapan anggaran K3 terpisah (PRK, SK)", e:"SKKO Pos 53 2025.pdf · Jun 2025 · 2025", s:"Belum lengkap", k:"Periode 2025, penilaian untuk 2026.", t:"Ganti atau tambahkan SKKO tahun 2026.", p:""},
+  {b:"Sosialisasi komitmen dan program K3", e:"Tidak ditemukan di folder indikator", s:"Belum tersedia", k:"Tidak ada bukti sosialisasi.", t:"Cek folder sosialisasi K3 semester 1; tautkan bila relevan.", p:""},
+  {b:"Monitoring realisasi program terhadap anggaran per PRK", e:"Monitoring Anggaran K3 TW 1 2026.pdf · TW 1 2026", s:"Belum lengkap", k:"Hanya 3 butir OFI/AFI, tanpa angka realisasi per PRK.", t:"Tambahkan penetapan, realisasi, dan sisa per PRK.", p:""},
+  {b:"OFI/AFI evaluasi program tahun sebelumnya", e:"OFI/AFI di file monitoring TW 1 2026", s:"Belum lengkap", k:"Berdasarkan anggaran 2026, bukan evaluasi program 2025.", t:"Siapkan evaluasi program K3 2025 beserta OFI/AFI.", p:""}
+];
+const KEY = "tracker-matlev-k3-v1";
+let rows, filter = null;
+function load(){ try{ const s = JSON.parse(localStorage.getItem(KEY)); if (Array.isArray(s) && s.length === DATA.length) return s; }catch(e){} return JSON.parse(JSON.stringify(DATA)); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(rows)); }catch(e){} }
+const cls = s => "s-" + s.replace(/ /g,"-");
+const esc = t => String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+function render(){
+  const st = document.getElementById("stats");
+  st.innerHTML = STATUS.map(s => `<button class="stat ${cls(s)} ${filter===s?"active":""}" data-s="${s}"><b>${rows.filter(r=>r.s===s).length}</b>${s}</button>`).join("");
+  st.querySelectorAll(".stat").forEach(b => b.onclick = () => { filter = filter === b.dataset.s ? null : b.dataset.s; render(); });
+  document.getElementById("filterInfo").textContent = filter ? `Filter: ${filter} (klik lagi untuk semua)` : `${rows.length} bukti diperiksa`;
+  const tb = document.getElementById("rows");
+  tb.innerHTML = rows.map((r,i) => (filter && r.s !== filter) ? "" : `<tr>
+    <td data-l="Bukti diminta">${esc(r.b)}</td><td data-l="Evidence">${esc(r.e)}</td>
+    <td data-l="Status"><select class="st ${cls(r.s)}" data-i="${i}">${STATUS.map(s=>`<option ${s===r.s?"selected":""}>${s}</option>`).join("")}</select></td>
+    <td data-l="Kekurangan">${esc(r.k)}</td><td data-l="Saran">${esc(r.t)}</td>
+    <td data-l="PIC"><input data-i="${i}" value="${esc(r.p)}" placeholder="Isi PIC"></td></tr>`).join("");
+  tb.querySelectorAll("select").forEach(el => el.onchange = () => { rows[el.dataset.i].s = el.value; save(); render(); });
+  tb.querySelectorAll("input").forEach(el => el.oninput = () => { rows[el.dataset.i].p = el.value; save(); });
+}
+function toast(m){ const t = document.getElementById("toast"); t.textContent = m; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"), 1800); }
+document.getElementById("memo").onclick = async () => {
+  const need = rows.filter(r => r.s === "Belum lengkap" || r.s === "Belum tersedia");
+  if (!need.length){ toast("Tidak ada evidence yang perlu diminta"); return; }
+  const text = "Perihal: Permintaan kelengkapan evidence MATLEV K3 2026 – Kriteria 1.1\n\nYth. PIC terkait,\n\nBerdasarkan pemeriksaan evidence, mohon dilengkapi dokumen berikut:\n\n"
+    + need.map((r,i)=>`${i+1}. ${r.b}\n   Kekurangan: ${r.k}\n   Yang diminta: ${r.t}${r.p?`\n   PIC: ${r.p}`:""}`).join("\n\n")
+    + "\n\nMohon evidence diunggah ke folder indikator di Google Drive paling lambat [tanggal].\n\nTerima kasih.";
+  try{ await navigator.clipboard.writeText(text); toast("Memo disalin, tinggal tempel ke email"); }
+  catch(e){ prompt("Salin memo berikut:", text); }
+};
+document.getElementById("reset").onclick = () => { if (confirm("Kembalikan semua status dan PIC ke data awal?")){ rows = JSON.parse(JSON.stringify(DATA)); save(); filter = null; render(); } };
+rows = load(); render();
+</script>
+</body>
+</html>
